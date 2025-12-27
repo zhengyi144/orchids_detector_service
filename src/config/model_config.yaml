@@ -1,0 +1,9 @@
+models:
+  orchids_disease_detect:
+    model_path: "src/ml/weight/best.pt"
+    model_name: "yolov11"
+    model_args:
+      image_size: [640, 640]
+
+images:
+  save_path: "./images/"

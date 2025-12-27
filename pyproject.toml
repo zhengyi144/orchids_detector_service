@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "orchid-disease-detector"
+version = "0.1.0"
+description = "A FastAPI application for detecting and recognizing orchid diseases."
+authors = ["Your Name <youremail@example.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+fastapi = "^0.75.0"
+uvicorn = "^0.17.0"
+pydantic = "^1.9.0"
+numpy = "^1.21.0"
+scikit-learn = "^1.0.0"
+tensorflow = "^2.6.0"  # or any other ML library you are using
+opencv-python = "^4.5.3"
+pillow = "^8.4.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
