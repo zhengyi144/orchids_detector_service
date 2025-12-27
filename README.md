@@ -221,11 +221,20 @@ orchids_detector_service/
 pip install -r requirements.txt
 
 # 运行测试
-python -m pytest tests/
+python -m unittest discover tests
 
-# 运行开发服务器
-python app/main.py
+# 运行开发服务器（启用调试模式）
+export FLASK_DEBUG=true
+python -m app.main
+
+# 运行生产服务器
+python -m app.main
 ```
+
+## 环境变量
+
+- `FLASK_DEBUG`: 设置为 `true` 启用调试模式（仅用于开发），默认为 `false`
+- `FLASK_ENV`: 设置为 `production` 或 `development`
 
 ## 许可证
 
