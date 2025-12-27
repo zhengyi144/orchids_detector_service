@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>兰花检测服务 - Orchid Detection Service</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-area:hover {
+            background: #f8f9ff;
+            border-color: #764ba2;
+        }
+        
+        .upload-area.dragover {
+            background: #f0f0ff;
+            border-color: #764ba2;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        
+        .upload-text {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .preview {
+            max-width: 100%;
+            margin: 20px 0;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s;
+            font-weight: bold;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .result h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .species-result {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .species-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .confidence {
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .progress {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+        
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .info {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .info h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .info ul {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌸 兰花检测服务</h1>
+        <p class="subtitle">Orchid Detection Service</p>
+        
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📷</div>
+            <div class="upload-text">点击或拖拽上传兰花图片</div>
+            <input type="file" id="fileInput" accept="image/*">
+        </div>
+        
+        <img id="preview" class="preview">
+        
+        <button class="btn" id="detectBtn" disabled>开始检测</button>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div>检测中...</div>
+        </div>
+        
+        <div class="error" id="error"></div>
+        
+        <div class="result" id="result">
+            <h3>检测结果</h3>
+            <div id="resultContent"></div>
+        </div>
+        
+        <div class="info">
+            <h4>支持的兰花品种：</h4>
+            <ul>
+                <li>蝴蝶兰 (Phalaenopsis)</li>
+                <li>石斛兰 (Dendrobium)</li>
+                <li>卡特兰 (Cattleya)</li>
+                <li>蕙兰 (Cymbidium)</li>
+                <li>文心兰 (Oncidium)</li>
+                <li>万代兰 (Vanda)</li>
+                <li>兜兰 (Paphiopedilum)</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const preview = document.getElementById('preview');
+        const detectBtn = document.getElementById('detectBtn');
+        const loading = document.getElementById('loading');
+        const result = document.getElementById('result');
+        const resultContent = document.getElementById('resultContent');
+        const error = document.getElementById('error');
+        
+        let selectedFile = null;
+        
+        // Click to upload
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        // File selection
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        });
+        
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleFile(file);
+            }
+        });
+        
+        function handleFile(file) {
+            selectedFile = file;
+            
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+            
+            // Enable detect button
+            detectBtn.disabled = false;
+            
+            // Hide previous results
+            result.style.display = 'none';
+            error.style.display = 'none';
+        }
+        
+        // Detect button click
+        detectBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+            
+            // Show loading
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            error.style.display = 'none';
+            detectBtn.disabled = true;
+            
+            // Create form data
+            const formData = new FormData();
+            formData.append('image', selectedFile);
+            
+            try {
+                // Send request
+                const response = await fetch('/api/detect', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayResult(data.result);
+                } else {
+                    showError(data.message || '检测失败');
+                }
+            } catch (err) {
+                showError('网络错误: ' + err.message);
+            } finally {
+                loading.style.display = 'none';
+                detectBtn.disabled = false;
+            }
+        });
+        
+        function displayResult(data) {
+            let html = '';
+            
+            if (data.is_orchid) {
+                html += `
+                    <div class="species-result">
+                        <div class="species-name">${data.primary_species}</div>
+                        <div class="confidence">置信度: ${(data.confidence * 100).toFixed(1)}%</div>
+                        <div class="progress">
+                            <div class="progress-bar" style="width: ${data.confidence * 100}%"></div>
+                        </div>
+                    </div>
+                `;
+                
+                if (data.all_predictions && data.all_predictions.length > 1) {
+                    html += '<h4 style="margin-top: 15px;">其他可能:</h4>';
+                    for (let i = 1; i < data.all_predictions.length; i++) {
+                        const pred = data.all_predictions[i];
+                        html += `
+                            <div class="species-result">
+                                <div class="species-name" style="font-size: 16px;">${pred.species}</div>
+                                <div class="confidence">置信度: ${(pred.confidence * 100).toFixed(1)}%</div>
+                                <div class="progress">
+                                    <div class="progress-bar" style="width: ${pred.confidence * 100}%"></div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+            } else {
+                html = '<div class="species-result">未检测到兰花或置信度较低</div>';
+            }
+            
+            resultContent.innerHTML = html;
+            result.style.display = 'block';
+        }
+        
+        function showError(message) {
+            error.textContent = message;
+            error.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
