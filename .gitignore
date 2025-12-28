@@ -45,8 +45,6 @@ tmp/
 temp/
 
 # 数据和模型
-data/
-models/
 *.h5
 *.pkl
 
