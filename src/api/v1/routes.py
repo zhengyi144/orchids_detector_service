@@ -28,7 +28,7 @@ async def detect_image(
         result = detect_and_recognize_process(imageBytes, detectType)
         # 将图像字节转为base64编码（便于JSON传输）
         image_base64 = base64.b64encode(result["image_bytes"]).decode('utf-8')
-        logger.info(f"Detection result: { result["detections"]}")
+        #logger.info(f"Detection result: { result["detections"]}")
         
         return JSONResponse(content={
             "filename": imageFile.filename,
@@ -40,7 +40,6 @@ async def detect_image(
     except Exception as e:
         logger.error(f"Error during image detection: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 
 @router.post("/uploadFile")
