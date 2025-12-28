@@ -51,8 +51,7 @@ def preprocess_image(image, target_size=(640, 640)):
     image_tensor = torch.from_numpy(image_normalized).permute(2, 0, 1).unsqueeze(0).float()
     return image_tensor
 
-
-def draw_predictions(image, results,target_size=(640, 640)):
+def draw_predictions(image, results, target_size=(640, 640), conf_threshold: float = 0.7):
     """
     在图像上绘制预测结果
     
@@ -61,21 +60,40 @@ def draw_predictions(image, results,target_size=(640, 640)):
         results: YOLO预测结果
         
     Returns:
-        绘制了检测框的图像
+        (annotated_image, detections):
+            annotated_image 为按原图尺寸绘制了检测框的图像
+            detections 为基于原图坐标的检测结果列表
     """
-    # 复制图像以避免修改原图
+    # 原图尺寸
+    orig_h, orig_w = image.shape[:2]
+    target_w, target_h = target_size
+
+    # 预处理阶段将原图拉伸为 target_size，这里反向缩放回原图坐标
+    scale_x = target_w / orig_w
+    scale_y = target_h / orig_h
+
+    # 复制原图以避免修改原图
     annotated_image = image.copy()
-    annotated_image = cv2.resize(annotated_image, target_size)
     detections = []
     
     # 遍历检测结果
     for result in results:
         boxes = result.boxes
         for box in boxes:
-            # 获取边界框坐标
-            x1, y1, x2, y2 = box.xyxy[0].cpu().numpy().astype(int)
+            # 获取在预处理后(640x640)图像上的边界框坐标
+            x1_r, y1_r, x2_r, y2_r = box.xyxy[0].cpu().numpy().astype(float)
+
+            # 反算到原图坐标系
+            x1 = int(x1_r / scale_x)
+            y1 = int(y1_r / scale_y)
+            x2 = int(x2_r / scale_x)
+            y2 = int(y2_r / scale_y)
             # 获取置信度和类别
             conf = float(box.conf[0])
+            # 过滤低置信度检测
+            if conf < conf_threshold:
+                continue
+
             cls = int(box.cls[0])
             class_name = result.names[cls]
 

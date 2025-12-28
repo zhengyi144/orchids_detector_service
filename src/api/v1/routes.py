@@ -27,12 +27,12 @@ async def detect_image(
         # TODO: 在这里调用你的检测模型进行推理
         result = detect_and_recognize_process(imageBytes, detectType)
         # 将图像字节转为base64编码（便于JSON传输）
-        image_base64 = base64.b64encode(result["image_bytes"]).decode('utf-8')
+        #image_base64 = base64.b64encode(result["image_bytes"]).decode('utf-8')
         #logger.info(f"Detection result: { result["detections"]}")
         
         return JSONResponse(content={
             "filename": imageFile.filename,
-            "image": image_base64,
+            #"image": image_base64,
             "detections": result["detections"],
             "num_detections": result["num_detections"]
         })

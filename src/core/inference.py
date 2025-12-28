@@ -41,8 +41,8 @@ def detect_and_recognize_process(imageBytes, projectName):
     prediction = detect_disease(model, image)
 
     #对预测结果进行处理并返回
-    # 在图像上绘制预测结果
-    annotatedImage,detections = draw_predictions(image, prediction)
+    # 在图像上绘制预测结果（内部会按原图尺寸映射检测框）
+    annotatedImage, detections = draw_predictions(image, prediction)
     logger.info(f"Detections: {detections}")
     #cv2.imshow("Predictions", annotatedImage)
     #cv2.waitKey(0)
