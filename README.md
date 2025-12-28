@@ -63,10 +63,10 @@ orchid-disease-detector
 5. **Run the application:**
    ```
    # 开发模式（自动重载）
-   uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
+   nohup uvicorn src.main:app --reload --host 0.0.0.0 --port 8000 &
    
    # 生产模式
-   uvicorn src.main:app --host 0.0.0.0 --port 8000 --workers 4
+   nohup uvicorn src.main:app --host 0.0.0.0 --port 8000 --workers 4 &
    ```
 
 ## Usage
