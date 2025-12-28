@@ -7,7 +7,7 @@ def setup_logging():
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         handlers=[
             logging.StreamHandler(sys.stdout),
-            logging.FileHandler("./logs/orchid_disease_detector.log")
+            logging.FileHandler("./logs/")
         ]
     )
 
